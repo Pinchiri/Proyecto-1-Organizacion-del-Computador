@@ -8,7 +8,7 @@ integer2: .space 52
 #Mensajes Inputs
 msgInteger1: .asciiz "Enter the first large integer (50 characters): \n--> "
 msgInteger2: .asciiz "Enter the second large integer(50 characters): \n--> "
-msgOperation: .asciiz "Enter the number of the operation that you want to do: \n1. Addition \n2. Sustraction \n3. Multiplication \n--> "
+msgOperation: .asciiz "Enter the number of the operation that you want to do: \n1. Addition \n2. Substraction \n3. Multiplication \n--> "
 
 #Salto de línea
 salto: .asciiz "\n"
