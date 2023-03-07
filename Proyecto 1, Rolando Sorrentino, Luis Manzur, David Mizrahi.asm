@@ -206,6 +206,14 @@ addition:
 		ble $t4, 57, lessTen
 		
 		greaterTen:
+			beqz $t8, endChangeCarry
+			changeCarry:
+				# Se suma el Cociente acarreado en la anterior iteración y se vuelve a declarar $t8 como 0
+				li $t7, 0
+				add $t7, $t7, $t8
+				li $t8, 0
+			endChangeCarry:
+			
 			# Se resta menos 48 para conseguir el valor real de la suma
 			subi $t5, $t4, 48
 			# Se divide entre 10 para obtener el Resto (Dígito que va dentro del resultado) y Cociente (Dígito que acarreamos)
@@ -214,21 +222,28 @@ addition:
 			mflo $t8
 			mfhi $t9
 			
+			# Sumamos el Cociente acarreado de la anterior iteración (Si es 0 no afecta)
+			add $t9, $t9, $t7
+			
 			# Se suma al Resto de la división 48 (Ya que es el número que guardaremos en el vector resultado"
 			addi $t9, $t9, 48
+			
+			
+			
 			# Se guarda el valor en ASCII del Resto dentro del resultado
 			sb $t9, resultInverted($s0)
 			b endLessTen
 		endGreaterTen:
 		
 		lessTen:
-			# Si el Cociente acarreado en la anterior iteración es 0 saltamos a "endCarry"
-			beqz $t8, endCarry
-			carry:
+			# Si el Cociente acarreado en la anterior iteración es 0 saltamos a "endCarry2"
+			beqz $t8, endCarry2
+			carry2:
 				# Se suma el Cociente acarreado en la anterior iteración y se vuelve a declarar $t8 como 0
 				add $t4, $t4, $t8
 				li $t8, 0
-			endCarry:
+			endCarry2:
+			
 			# Se guarda el valor en ASCII de la suma (Este es el caso en que la suma de ambos dígitos es menor a 10)
 			sb $t4, resultInverted($s0)
 		endLessTen:
