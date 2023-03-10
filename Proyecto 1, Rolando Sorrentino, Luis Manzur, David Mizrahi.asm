@@ -11,13 +11,13 @@ result: .space 60
 # Mensajes Inputs
 msgInteger1: .asciiz "Enter the first large integer (50 characters): \n--> "
 msgInteger2: .asciiz "Enter the second large integer(50 characters): \n--> "
-msgOperation: .asciiz "Enter the number of the operation that you want to do: \n1. Addition \n2. Substraction \n3. Multiplication \n--> "
+msgOperation: .asciiz "Enter the number of the operation that you want to do: \n1. Addition \n2. Substraction \n3. Multiplication \n4. Exit the program \n--> "
 
 # Salto de línea
 salto: .asciiz "\n"
 
 # Mensajes validaciones
-msgGreaterLessThan: .asciiz "\n¡WARNING! You have to enter a number between 1 and 3 ¡WARNING!\n"
+msgGreaterLessThan: .asciiz "\n¡WARNING! You have to enter a number between 1 and 4 ¡WARNING!\n"
 
 # Mensaje Output
 msgOutput: "El resultado es: "
@@ -98,6 +98,21 @@ inputInteger:
 	li $t0, 0
 	li $t1, 0
 	
+	# Se guardan los tamaños de los dos números para usarlos posteriormente
+	la $s4, ($t8)
+	la $s5, ($t9)
+	
+	bgt $s4, $s5, firstGreatest
+	bgt $s5, $s4, secondGreatest
+	
+	firstGreatest:
+		la $s6, ($s4)
+	endFirstGreatest:
+	
+	secondGreatest:
+		la $s6, ($s5)
+	endSecondGreatest:
+	
 	# Invertir primer entero
 	invertion1:
 		# Condición de parada
@@ -156,8 +171,10 @@ validations:
 	
 	beq $t1, 3, multiplication
 	
+	beq $t1, 4, end
+	
 	#Validación si inputOperation es menor que 1 o mayor que 3
-	bgt $t1, 3, greaterThan	
+	bgt $t1, 4, greaterThan	
 	blt $t1, 1, lessThan
 	
 	j end
@@ -178,8 +195,6 @@ lessThan:
 	j inputOperation
 	
 #Addition
-	
-	
 addition:
 	#Inicializamos la variable de iteración $t0 en 1 ya que el primer elemento (0) del número invertido es null
 	li $t0, 1
