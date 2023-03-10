@@ -213,8 +213,19 @@ addition:
 		lb $t2, inverted2($t0)
 		
 		# Condición de Parada (Si $t8 o $t9 son menores que 0)
-		bgt $t0, $s6, printResult
-
+		bgt $t0, $s6, lastDigit
+		#bgt $t0, $s6, printResult
+		
+		
+		j endLastDigit
+		lastDigit:
+			beqz $t8, printResult
+			
+			addi $t8, $t8, 48
+			sb $t8, resultInverted($s0)
+			j printResult
+		endLastDigit:
+		
 		blt $t1, 48, null1
 		blt $t2, 48, null2
 
@@ -233,7 +244,8 @@ addition:
 			la $t4, ($t1)
 			j lessTen
 			
-
+		
+			
 		null:
 		# Si la suma de los dos dígitos es mayor que 9 (57 en ASCII) entramos en "greaterTen"
 		bgt $t4, 57, greaterTen
