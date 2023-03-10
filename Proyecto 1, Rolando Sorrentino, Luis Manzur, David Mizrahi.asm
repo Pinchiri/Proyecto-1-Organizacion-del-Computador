@@ -11,13 +11,13 @@ result: .space 60
 # Mensajes Inputs
 msgInteger1: .asciiz "Enter the first large integer (50 characters): \n--> "
 msgInteger2: .asciiz "Enter the second large integer(50 characters): \n--> "
-msgOperation: .asciiz "Enter the number of the operation that you want to do: \n1. Addition \n2. Substraction \n3. Multiplication \n--> "
+msgOperation: .asciiz "Enter the number of the operation that you want to do: \n1. Addition \n2. Substraction \n3. Multiplication \n4. Exit the program \n--> "
 
 # Salto de línea
 salto: .asciiz "\n"
 
 # Mensajes validaciones
-msgGreaterLessThan: .asciiz "\n¡WARNING! You have to enter a number between 1 and 3 ¡WARNING!\n"
+msgGreaterLessThan: .asciiz "\n¡WARNING! You have to enter a number between 1 and 4 ¡WARNING!\n"
 
 # Mensaje Output
 msgOutput: "El resultado es: "
@@ -98,6 +98,26 @@ inputInteger:
 	li $t0, 0
 	li $t1, 0
 	
+	# Se guardan los tamaños de los dos números para usarlos posteriormente
+	la $s4, ($t8)
+	la $s5, ($t9)
+	
+	blt $s4, $s5, firstGreatest
+	bgt $s4, $s5, secondGreatest
+	
+	firstGreatest:
+		la $s6, ($s5)
+		li $s4, 0
+		li $s5, 0
+		j endSecondGreatest
+	endFirstGreatest:
+	
+	secondGreatest:
+		la $s6, ($s4)
+		li $s4, 0
+		li $s5, 0
+	endSecondGreatest:
+	
 	# Invertir primer entero
 	invertion1:
 		# Condición de parada
@@ -156,8 +176,10 @@ validations:
 	
 	beq $t1, 3, multiplication
 	
+	beq $t1, 4, end
+	
 	#Validación si inputOperation es menor que 1 o mayor que 3
-	bgt $t1, 3, greaterThan	
+	bgt $t1, 4, greaterThan	
 	blt $t1, 1, lessThan
 	
 	j end
@@ -178,8 +200,6 @@ lessThan:
 	j inputOperation
 	
 #Addition
-	
-	
 addition:
 	#Inicializamos la variable de iteración $t0 en 1 ya que el primer elemento (0) del número invertido es null
 	li $t0, 1
@@ -192,20 +212,39 @@ addition:
 		lb $t2, inverted2($t0)
 		
 		# Condición de Parada (Si $t8 o $t9 son menores que 0)
-		beqz $t1, printResult	
-		beqz $t2, printResult
-	
+		bgt $t0, $s6, printResult
+		blt $t1, 48, null1
+		blt $t2, 48, null2
 		# Se realiza la suma de los dos dígitos de cada entero
 		add $t3, $t1, $t2
+		blt $t3, 58, null
 		# Se resta menos 48 para dar el valor correcto de la suma en ASCII
 		subi $t4, $t3, 48
 		
+		j null
+		null1:
+			la $t4, ($t2)
+			j lessTen
+		
+		null2:
+			la $t4, ($t1)
+			j lessTen
+			
+		null:
 		# Si la suma de los dos dígitos es mayor que 9 (57 en ASCII) entramos en "greaterTen"
 		bgt $t4, 57, greaterTen
 		# Si la suma de los dos dígitos es menor que 10 (58 en ASCII) entramos en "lessTen"
 		ble $t4, 57, lessTen
 		
 		greaterTen:
+			beqz $t8, endChangeCarry
+			changeCarry:
+				# Se suma el Cociente acarreado en la anterior iteración y se vuelve a declarar $t8 como 0
+				li $t7, 0
+				add $t7, $t7, $t8
+				li $t8, 0
+			endChangeCarry:
+			
 			# Se resta menos 48 para conseguir el valor real de la suma
 			subi $t5, $t4, 48
 			# Se divide entre 10 para obtener el Resto (Dígito que va dentro del resultado) y Cociente (Dígito que acarreamos)
@@ -214,21 +253,28 @@ addition:
 			mflo $t8
 			mfhi $t9
 			
+			# Sumamos el Cociente acarreado de la anterior iteración (Si es 0 no afecta)
+			add $t9, $t9, $t7
+			
 			# Se suma al Resto de la división 48 (Ya que es el número que guardaremos en el vector resultado"
 			addi $t9, $t9, 48
+			
+			
+			
 			# Se guarda el valor en ASCII del Resto dentro del resultado
 			sb $t9, resultInverted($s0)
 			b endLessTen
 		endGreaterTen:
 		
 		lessTen:
-			# Si el Cociente acarreado en la anterior iteración es 0 saltamos a "endCarry"
-			beqz $t8, endCarry
-			carry:
+			# Si el Cociente acarreado en la anterior iteración es 0 saltamos a "endCarry2"
+			beqz $t8, endCarry2
+			carry2:
 				# Se suma el Cociente acarreado en la anterior iteración y se vuelve a declarar $t8 como 0
 				add $t4, $t4, $t8
 				li $t8, 0
-			endCarry:
+			endCarry2:
+			
 			# Se guarda el valor en ASCII de la suma (Este es el caso en que la suma de ambos dígitos es menor a 10)
 			sb $t4, resultInverted($s0)
 		endLessTen:
