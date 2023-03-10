@@ -109,6 +109,10 @@ inputInteger:
 		la $s6, ($s5)
 		li $s4, 0
 		li $s5, 0
+<<<<<<< HEAD
+=======
+		j endSecondGreatest
+>>>>>>> main
 	endFirstGreatest:
 	
 	secondGreatest:
@@ -212,13 +216,30 @@ addition:
 		
 		# Condición de Parada (Si $t8 o $t9 son menores que 0)
 		bgt $t0, $s6, printResult
+<<<<<<< HEAD
 	
+=======
+		blt $t1, 48, null1
+		blt $t2, 48, null2
+>>>>>>> main
 		# Se realiza la suma de los dos dígitos de cada entero
 		add $t3, $t1, $t2
 		blt $t3, 58, null
 		# Se resta menos 48 para dar el valor correcto de la suma en ASCII
 		subi $t4, $t3, 48
 		
+<<<<<<< HEAD
+=======
+		j null
+		null1:
+			la $t4, ($t2)
+			j lessTen
+		
+		null2:
+			la $t4, ($t1)
+			j lessTen
+			
+>>>>>>> main
 		null:
 		# Si la suma de los dos dígitos es mayor que 9 (57 en ASCII) entramos en "greaterTen"
 		bgt $t4, 57, greaterTen
