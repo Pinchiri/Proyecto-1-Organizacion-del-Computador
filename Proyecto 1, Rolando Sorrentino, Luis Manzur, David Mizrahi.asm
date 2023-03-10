@@ -102,15 +102,19 @@ inputInteger:
 	la $s4, ($t8)
 	la $s5, ($t9)
 	
-	bgt $s4, $s5, firstGreatest
-	bgt $s5, $s4, secondGreatest
+	blt $s4, $s5, firstGreatest
+	bgt $s4, $s5, secondGreatest
 	
 	firstGreatest:
-		la $s6, ($s4)
+		la $s6, ($s5)
+		li $s4, 0
+		li $s5, 0
 	endFirstGreatest:
 	
 	secondGreatest:
-		la $s6, ($s5)
+		la $s6, ($s4)
+		li $s4, 0
+		li $s5, 0
 	endSecondGreatest:
 	
 	# Invertir primer entero
@@ -207,14 +211,15 @@ addition:
 		lb $t2, inverted2($t0)
 		
 		# Condición de Parada (Si $t8 o $t9 son menores que 0)
-		beqz $t1, printResult	
-		beqz $t2, printResult
+		bgt $t0, $s6, printResult
 	
 		# Se realiza la suma de los dos dígitos de cada entero
 		add $t3, $t1, $t2
+		blt $t3, 58, null
 		# Se resta menos 48 para dar el valor correcto de la suma en ASCII
 		subi $t4, $t3, 48
 		
+		null:
 		# Si la suma de los dos dígitos es mayor que 9 (57 en ASCII) entramos en "greaterTen"
 		bgt $t4, 57, greaterTen
 		# Si la suma de los dos dígitos es menor que 10 (58 en ASCII) entramos en "lessTen"
