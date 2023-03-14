@@ -17,7 +17,7 @@ msgOperation: .asciiz "Enter the number of the operation that you want to do: \n
 salto: .asciiz "\n"
 
 # Mensajes validaciones
-msgGreaterLessThan: .asciiz "\nï¿½WARNING! You have to enter a number between 1 and 4 ï¿½WARNING!\n"
+msgGreaterLessThan: .asciiz "\n!WARNING! You have to enter a number between 1 and 4 !WARNING!\n"
 
 # Mensaje Output
 msgOutput: "El resultado es: "
@@ -154,12 +154,12 @@ inputOperation:
 	
 	li $t1, 0
 	
-	#Imprime el mensaje para introducir la operaciï¿½n a realizar
+	#Imprime el mensaje para introducir la operación a realizar
 	li $v0, 4
 	la $a0, msgOperation
 	syscall
 	
-	#Input de la operaciï¿½n a realizar
+	#Input de la operación a realizar
 	li $v0, 5
 	syscall
 	move $t1, $v0
@@ -202,7 +202,7 @@ lessThan:
 	
 #Addition
 addition:
-	#Inicializamos la variable de iteraciï¿½n $t0 en 1 ya que el primer elemento (0) del nï¿½mero invertido es null
+	#Inicializamos la variable de iteración $t0 en 1 ya que el primer elemento (0) del número invertido es null
 	li $t0, 1
 	li $s0, 0
 	li $t9, 0
@@ -212,12 +212,12 @@ addition:
 		lb $t1, inverted1($t0)
 		lb $t2, inverted2($t0)
 		
-		# Condiciï¿½n de Parada (Si $t8 o $t9 son menores que 0)
-		bgt $t0, $s6, lastDigit
-		#bgt $t0, $s6, printResult
-		
+		# Condición de Parada (Si $t8 o $t9 son menores que 0)
+		bgt $t0, $s6, lastDigit		
 		
 		j endLastDigit
+		
+		# Si el último dígito no tiene un acarreo imprime el resultado; mientras que si tiene un acarreo todavía lo agrega como último dígito del resultado
 		lastDigit:
 			beqz $t8, printResult
 			
@@ -226,20 +226,24 @@ addition:
 			j printResult
 		endLastDigit:
 		
+		# Si $t1 o $t2 no es un número va a "null1" o "null2"
 		blt $t1, 48, null1
 		blt $t2, 48, null2
 
-		# Se realiza la suma de los dos dï¿½gitos de cada entero
+		# Se realiza la suma de los dos dígitos de cada entero
 		add $t3, $t1, $t2
 		blt $t3, 58, null
 		# Se resta menos 48 para dar el valor correcto de la suma en ASCII
 		subi $t4, $t3, 48
 		
 		j null
+		
+		# Si $t1 no es un número guarda en $t4 (resultado de la suma) el valor de $t2
 		null1:
 			la $t4, ($t2)
 			j lessTen
 		
+		# Si $t2 no es un número guarda en $t4 (resultado de la suma) el valor de $t1
 		null2:
 			la $t4, ($t1)
 			j lessTen
@@ -247,9 +251,9 @@ addition:
 		
 			
 		null:
-		# Si la suma de los dos dï¿½gitos es mayor que 9 (57 en ASCII) entramos en "greaterTen"
+		# Si la suma de los dos dígitos es mayor que 9 (57 en ASCII) entramos en "greaterTen"
 		bgt $t4, 57, greaterTen
-		# Si la suma de los dos dï¿½gitos es menor que 10 (58 en ASCII) entramos en "lessTen"
+		# Si la suma de los dos dígitos es menor que 10 (58 en ASCII) entramos en "lessTen"
 		ble $t4, 57, lessTen
 		
 		greaterTen:
@@ -279,6 +283,7 @@ addition:
 			
 			# Se guarda el valor en ASCII del Resto dentro del resultado
 			sb $t9, resultInverted($s0)
+			
 			b endLessTen
 		endGreaterTen:
 		
@@ -413,7 +418,7 @@ printResult:
 	endResultInvertion:
 	
 	
-	# Salto de lï¿½nea
+	# Salto de línea
 	li $v0, 4
 	la $a0, salto
 	syscall
