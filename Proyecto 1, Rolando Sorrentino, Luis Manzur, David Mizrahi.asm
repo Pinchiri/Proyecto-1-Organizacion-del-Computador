@@ -214,9 +214,7 @@ addition:
 		
 		# Condición de Parada (Si $t8 o $t9 son menores que 0)
 		bgt $t0, $s6, lastDigit
-		#bgt $t0, $s6, printResult
-		
-		
+				
 		j endLastDigit
 		lastDigit:
 			beqz $t8, printResult
@@ -304,8 +302,8 @@ addition:
 
 #Sustraction
 sustraction:
-
-	j end
+ 	
+ 	j end
 	
 #Multiplication
 multiplication:
