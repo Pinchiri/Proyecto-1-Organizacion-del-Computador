@@ -5,8 +5,8 @@ integer2: .space 51
 inverted1: .space 51
 inverted2: .space 51
 
-resultInverted: .space 60
-result: .space 60
+resultInverted: .space 102
+result: .space 102
 
 # Mensajes Inputs
 msgInteger1: .asciiz "Enter the first large integer (50 characters): \n--> "
@@ -63,7 +63,13 @@ inputInteger:
 	# ï¿½ltimas posiciones de los enteros
 	li $t8, 0
 	li $t9, 0
-
+	
+	# Signos de cada número
+	lb $s0, integer1($0)
+	lb $s1, integer2($0)
+	
+	sub $s3, $s0, $s1
+	
 	lastPosition1:
 		# Cargar el Caracter al cual apunta $t8
 		lb $t1, integer1($t8)
@@ -105,6 +111,7 @@ inputInteger:
 	blt $s4, $s5, firstGreatest
 	bgt $s4, $s5, secondGreatest
 	
+	# Si el segundo número es mayor setea en $s6 su tamaño
 	firstGreatest:
 		la $s6, ($s5)
 		li $s4, 0
@@ -113,12 +120,14 @@ inputInteger:
 
 	endFirstGreatest:
 	
+	# Si el primer número es mayor setea en $s6 su tamaño
 	secondGreatest:
 		la $s6, ($s4)
 		li $s4, 0
 		li $s5, 0
 	endSecondGreatest:
 	
+	subi $s6, $s6, 1
 	# Invertir primer entero
 	invertion1:
 		# Condiciï¿½n de parada
@@ -152,7 +161,7 @@ inputInteger:
 
 inputOperation:
 	
-	li $t1, 0
+	li $s7, 0
 	
 	#Imprime el mensaje para introducir la operación a realizar
 	li $v0, 4
@@ -162,7 +171,7 @@ inputOperation:
 	#Input de la operación a realizar
 	li $v0, 5
 	syscall
-	move $t1, $v0
+	move $s7, $v0
 	
 	j validations
 
@@ -171,17 +180,31 @@ inputOperation:
 validations:
 
 	#Operation validation
-	beq $t1, 1, addition
+	beq $s7, 1, additionSign
+	
+	j endAdditionSign
 		
-	beq $t1, 2, sustraction
+	additionSign:
+		beqz $s3, addition
+		bnez $s3, sustraction
+	endAdditionSign:
 	
-	beq $t1, 3, multiplication
+	beq $s7, 2, sustractionSign
 	
-	beq $t1, 4, end
+	j endSustractionSign
+	
+	sustractionSign:
+		beqz $s3, sustraction
+		bnez $s3, addition
+	endSustractionSign:
+	
+	beq $s7, 3, multiplication
+	
+	beq $s7, 4, end
 	
 	#Validaciï¿½n si inputOperation es menor que 1 o mayor que 3
-	bgt $t1, 4, greaterThan	
-	blt $t1, 1, lessThan
+	bgt $s7, 4, greaterThan	
+	blt $s7, 1, lessThan
 	
 	j end
 	
@@ -202,19 +225,22 @@ lessThan:
 	
 #Addition
 addition:
+	
+	sb $s0, resultInverted($s6)
+	
 	#Inicializamos la variable de iteración $t0 en 1 ya que el primer elemento (0) del número invertido es null
-	li $t0, 1
-	li $s0, 0
-	li $t9, 0
-	li $t8, 0
+	li $t0, 1 
+	li $t4, 0 # Variable de iteración del resultado
+	li $t9, 0 
+	li $t8, 0 # Acarreo
+
 	sum:	
 		# Cargar el Caracter al cual apunta $t0
 		lb $t1, inverted1($t0)
 		lb $t2, inverted2($t0)
-		
+
 		# Condición de Parada (Si $t8 o $t9 son menores que 0)
-		bgt $t0, $s6, lastDigit
-		bgt $t0, $s6, lastDigit		
+		bgt $t0, $s6, lastDigit	
 
 		j endLastDigit
 		
@@ -223,7 +249,7 @@ addition:
 			beqz $t8, printResult
 			
 			addi $t8, $t8, 48
-			sb $t8, resultInverted($s0)
+			sb $t8, resultInverted($t4)
 			j printResult
 		endLastDigit:
 		
@@ -235,27 +261,27 @@ addition:
 		add $t3, $t1, $t2
 		blt $t3, 58, null
 		# Se resta menos 48 para dar el valor correcto de la suma en ASCII
-		subi $t4, $t3, 48
+		subi $t3, $t3, 48
 		
 		j null
 		
 		# Si $t1 no es un número guarda en $t4 (resultado de la suma) el valor de $t2
 		null1:
-			la $t4, ($t2)
+			la $t3, ($t2)
 			j lessTen
 		
 		# Si $t2 no es un número guarda en $t4 (resultado de la suma) el valor de $t1
 		null2:
-			la $t4, ($t1)
+			la $t3, ($t1)
 			j lessTen
 			
 		
 			
 		null:
 		# Si la suma de los dos dígitos es mayor que 9 (57 en ASCII) entramos en "greaterTen"
-		bgt $t4, 57, greaterTen
+		bgt $t3, 57, greaterTen
 		# Si la suma de los dos dígitos es menor que 10 (58 en ASCII) entramos en "lessTen"
-		ble $t4, 57, lessTen
+		ble $t3, 57, lessTen
 		
 		greaterTen:
 			beqz $t8, endChangeCarry
@@ -267,7 +293,7 @@ addition:
 			endChangeCarry:
 			
 			# Se resta menos 48 para conseguir el valor real de la suma
-			subi $t5, $t4, 48
+			subi $t5, $t3, 48
 			# Se divide entre 10 para obtener el Resto (Dï¿½gito que va dentro del resultado) y Cociente (Dï¿½gito que acarreamos)
 			div $t6, $t5, 10
 			# Se mueve el Cociente a $t8 y el Resto a $t9
@@ -283,7 +309,7 @@ addition:
 			
 			
 			# Se guarda el valor en ASCII del Resto dentro del resultado
-			sb $t9, resultInverted($s0)
+			sb $t9, resultInverted($t4)
 			
 			b endLessTen
 		endGreaterTen:
@@ -292,24 +318,38 @@ addition:
 			# Si el Cociente acarreado en la anterior iteraciï¿½n es 0 saltamos a "endCarry2"
 			beqz $t8, endCarry2
 			carry2:
+				beq $t3, 57, ifNine
+				
+				j endIfNine
+				
+				# Si el dígito es 9 y lleva un acarreo
+				ifNine:
+					# Convierte el 9 en un 0 (10) y 
+					li $t3, 48
+					j endCarry2
+				endIfNine:
+
 				# Se suma el Cociente acarreado en la anterior iteraciï¿½n y se vuelve a declarar $t8 como 0
-				add $t4, $t4, $t8
+				add $t3, $t3, $t8
 				li $t8, 0
 			endCarry2:
 			
 			# Se guarda el valor en ASCII de la suma (Este es el caso en que la suma de ambos dï¿½gitos es menor a 10)
-			sb $t4, resultInverted($s0)
+			sb $t3, resultInverted($t4)
 		endLessTen:
 	
 		# Incrementamos $t0 = $t0 + 1; $s0 = $s0 + 1
 		addi $t0, $t0, 1 
-		addi $s0, $s0, 1
+		addi $t4, $t4, 1
 		
 		b sum
 	endSum:
 
 #Sustraction
 sustraction:
+	
+	sb $s0, resultInverted($s6)
+		
 	#Inicializamos la variable de iteraciï¿½n $t0 en 1 ya que el primer elemento (0) del nï¿½mero invertido es null
 	li $t0, 1
 	li $s0, 0
@@ -430,6 +470,11 @@ printResult:
 	syscall
 	li $v0, 4
 	la $a0, result
+	syscall
+	
+	# Salto de línea
+	li $v0, 4
+	la $a0, salto
 	syscall
 	
 	j end
