@@ -11,10 +11,10 @@ resultInverted: .space 102
 result: .space 102
 
 # Mensajes Inputs
-msgBienvenue: .asciiz "----------  WELCOME!  ---------- \n\nFirst you will have to enter the two large integers \nPlease note that you have to put the sign of the number first. I.E: '+10' , '-10'\n\n"
+msgBienvenue: .asciiz "----------  WELCOME!  ---------- \n\nFirst you will have to enter the two large integers \nPlease note that you have to put the sign of the number first, e.g: '+10' , '-10'\n\n"
 msgInteger1: .asciiz "Enter the first large integer (50 characters): \n--> "
 msgInteger2: .asciiz "Enter the second large integer(50 characters): \n--> "
-msgOperation: .asciiz "Enter the number of the operation that you want to do: \n1. Addition \n2. Substraction \n3. Multiplication \n4. Exit the program \n--> "
+msgOperation: .asciiz "Enter the number of the operation that you want to do: \n1. Addition \n2. Substraction (The first integer will be substracted by the second)   \n3. Multiplication \n4. Exit the program \n--> "
 
 # Salto de l�nea
 salto: .asciiz "\n"
