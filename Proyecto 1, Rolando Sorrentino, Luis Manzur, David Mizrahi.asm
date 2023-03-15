@@ -5,10 +5,13 @@ integer2: .space 51
 inverted1: .space 51
 inverted2: .space 51
 
+operation: .space 3
+
 resultInverted: .space 102
 result: .space 102
 
 # Mensajes Inputs
+msgBienvenue: .asciiz "----------  WELCOME!  ---------- \n\nFirst you will have to enter the two large integers \nPlease note that you have to put the sign of the number first. I.E: '+10' , '-10'\n\n"
 msgInteger1: .asciiz "Enter the first large integer (50 characters): \n--> "
 msgInteger2: .asciiz "Enter the second large integer(50 characters): \n--> "
 msgOperation: .asciiz "Enter the number of the operation that you want to do: \n1. Addition \n2. Substraction \n3. Multiplication \n4. Exit the program \n--> "
@@ -20,13 +23,18 @@ salto: .asciiz "\n"
 msgGreaterLessThan: .asciiz "\n!WARNING! You have to enter a number between 1 and 4 !WARNING!\n"
 
 # Mensaje Output
-msgOutput: "El resultado es: "
+msgOutput: " ------------------------------------------------\n El resultado es: "
 
 
 .text
 
 # Inputs
 inputInteger:
+	
+	#Imprime el mensaje para introducir el primer entero
+	li $v0, 4
+	la $a0, msgBienvenue
+	syscall
 
 	#Imprime el mensaje para introducir el primer entero
 	li $v0, 4
@@ -169,10 +177,17 @@ inputOperation:
 	syscall
 	
 	#Input de la operación a realizar
-	li $v0, 5
+	li $v0, 8
+	la $a0, operation
+	li $a1, 3
 	syscall
-	move $s7, $v0
 	
+	# Salto de lï¿½nea
+	li $v0, 4
+	la $a0, salto
+	syscall
+	
+	lb $s7, operation($0)
 	j validations
 
 
@@ -180,7 +195,7 @@ inputOperation:
 validations:
 
 	#Operation validation
-	beq $s7, 1, additionSign
+	beq $s7, 49, additionSign
 	
 	j endAdditionSign
 		
@@ -189,7 +204,7 @@ validations:
 		bnez $s3, sustraction
 	endAdditionSign:
 	
-	beq $s7, 2, sustractionSign
+	beq $s7, 50, sustractionSign
 	
 	j endSustractionSign
 	
@@ -198,13 +213,13 @@ validations:
 		bnez $s3, addition
 	endSustractionSign:
 	
-	beq $s7, 3, multiplication
+	beq $s7, 51, multiplication
 	
-	beq $s7, 4, end
+	beq $s7, 52, end
 	
 	#Validaciï¿½n si inputOperation es menor que 1 o mayor que 3
-	bgt $s7, 4, greaterThan	
-	blt $s7, 1, lessThan
+	bgt $s7, 52, greaterThan	
+	blt $s7, 49, lessThan
 	
 	j end
 	
@@ -250,6 +265,8 @@ addition:
 			
 			addi $t8, $t8, 48
 			sb $t8, resultInverted($t4)
+			addi $t4, $t4, 1
+			sb $s0, resultInverted($t4) 
 			j printResult
 		endLastDigit:
 		
@@ -352,7 +369,7 @@ sustraction:
 		
 	#Inicializamos la variable de iteraciï¿½n $t0 en 1 ya que el primer elemento (0) del nï¿½mero invertido es null
 	li $t0, 1
-	li $s0, 0
+	li $t4, 0
 	li $t8, 0 # Carreo
 	li $t3, 0 # result
 
@@ -377,12 +394,12 @@ sustraction:
 
 		subtNull1:
 			la $t3, ($t2)
-			sb $t3, resultInverted($s0)
+			sb $t3, resultInverted($t4)
 			j subtEndCarry
 		
 		subtNull2:
 			la $t3, ($t1)
-			sb $t3, resultInverted($s0)
+			sb $t3, resultInverted($t4)
 			j subtEndCarry
 
 		applySubt:
@@ -390,7 +407,7 @@ sustraction:
 			sub $t3, $t1, $t2
 			addi $t3, $t3, 48
 
-			sb $t3, resultInverted($s0)
+			sb $t3, resultInverted($t4)
 
 			j subtEndCarry
 			
@@ -411,7 +428,7 @@ sustraction:
 		subtEndCarry:
 			# Incrementamos $t0 = $t0 + 1; $s0 = $s0 + 1
 			addi $t0, $t0, 1 
-			addi $s0, $s0, 1
+			addi $t4, $t4, 1
 
 		b subt
 	
