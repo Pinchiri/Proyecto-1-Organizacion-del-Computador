@@ -5,7 +5,7 @@ integer2: .space 51
 inverted1: .space 51
 inverted2: .space 51
 
-operation: .space 3
+operation: .space 2
 
 resultInverted: .space 102
 result: .space 102
@@ -122,8 +122,7 @@ inputInteger:
 	# Si el segundo n�mero es mayor setea en $s6 su tama�o
 	firstGreatest:
 		la $s6, ($s5)
-		li $s4, 0
-		li $s5, 0
+
 		j endSecondGreatest
 
 	endFirstGreatest:
@@ -131,8 +130,7 @@ inputInteger:
 	# Si el primer n�mero es mayor setea en $s6 su tama�o
 	secondGreatest:
 		la $s6, ($s4)
-		li $s4, 0
-		li $s5, 0
+
 	endSecondGreatest:
 	
 	subi $s6, $s6, 1
@@ -179,7 +177,7 @@ inputOperation:
 	#Input de la operaci�n a realizar
 	li $v0, 8
 	la $a0, operation
-	li $a1, 3
+	li $a1, 2
 	syscall
 	
 	# Salto de l�nea
@@ -442,8 +440,74 @@ sustraction:
 	
 #Multiplication
 multiplication:
-	
-	j end
+
+	li $t0 1 #iterador del input 1
+    	li $t1 0 #carry
+    	li $t2 1 #iterador del input 2
+   	li $t9 0 #contador resultado
+
+    	loop1: 
+    	#condicion de parada
+    	bgt $t0 $s4 prueba
+   	 #iteramos los strings ingresados para conseguir los caracteres
+    	lb $t3 inverted1($t0)
+    	lb $t4 inverted2($t2)
+
+    	#obtenemos los numeros reales
+
+   	subi $t3 $t3 48 #entero input 1
+   	subi $t4 $t4 48 #entero input 2
+
+   	#en caso de que carry != 0 se le suma al digito encontrado almacenado en t4
+    	
+    	#multiplicamos los numeros
+   	mul $t5 $t4 $t3
+
+   	#le anadimos el carry
+   	add $t5 $t5 $t1
+
+   	#actualizamos el carry
+    	li $t1 0
+
+    	div $t6, $t5, 10
+    	# Se mueve el Cociente a $t8 y el Resto a $t9
+    	mflo $t1
+   	mfhi $t5
+
+    	addi $t5 $t5 48
+
+
+
+    	lb $t7, resultInverted($t9)
+    	blt $t7 48 insertar
+    	j end_insertar
+    	insertar:
+       		sb $t5 resultInverted($t9)
+        	j sumatoria
+        end_insertar:
+
+
+    	add $t5 $t5 $t7
+    	subi $t5 $t5 48
+    	sb $t5 resultInverted($t9)
+
+
+    	sumatoria:
+    	#incrementamos los contadores
+    	addi $t0 $t0 1
+    	addi $t9 $t9 1
+
+
+
+    	j loop1
+
+    prueba:
+
+        addi $t2 $t2 1
+        bgt $t2 $s5 printResult
+        li $t0 1
+        sub $t9 $t2 1
+        j loop1
 
 #Print result
 printResult:
