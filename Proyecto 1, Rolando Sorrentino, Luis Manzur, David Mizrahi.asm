@@ -72,7 +72,7 @@ inputInteger:
 	li $t8, 0
 	li $t9, 0
 	
-	# Signos de cada número
+	# Signos de cada nï¿½mero
 	lb $s0, integer1($0)
 	lb $s1, integer2($0)
 	
@@ -119,7 +119,7 @@ inputInteger:
 	blt $s4, $s5, firstGreatest
 	bgt $s4, $s5, secondGreatest
 	
-	# Si el segundo número es mayor setea en $s6 su tamaño
+	# Si el segundo nï¿½mero es mayor setea en $s6 su tamaï¿½o
 	firstGreatest:
 		la $s6, ($s5)
 		li $s4, 0
@@ -128,7 +128,7 @@ inputInteger:
 
 	endFirstGreatest:
 	
-	# Si el primer número es mayor setea en $s6 su tamaño
+	# Si el primer nï¿½mero es mayor setea en $s6 su tamaï¿½o
 	secondGreatest:
 		la $s6, ($s4)
 		li $s4, 0
@@ -171,12 +171,12 @@ inputOperation:
 	
 	li $s7, 0
 	
-	#Imprime el mensaje para introducir la operación a realizar
+	#Imprime el mensaje para introducir la operaciï¿½n a realizar
 	li $v0, 4
 	la $a0, msgOperation
 	syscall
 	
-	#Input de la operación a realizar
+	#Input de la operaciï¿½n a realizar
 	li $v0, 8
 	la $a0, operation
 	li $a1, 3
@@ -243,9 +243,9 @@ addition:
 	
 	sb $s0, resultInverted($s6)
 	
-	#Inicializamos la variable de iteración $t0 en 1 ya que el primer elemento (0) del número invertido es null
+	#Inicializamos la variable de iteraciï¿½n $t0 en 1 ya que el primer elemento (0) del nï¿½mero invertido es null
 	li $t0, 1 
-	li $t4, 0 # Variable de iteración del resultado
+	li $t4, 0 # Variable de iteraciï¿½n del resultado
 	li $t9, 0 
 	li $t8, 0 # Acarreo
 
@@ -254,12 +254,12 @@ addition:
 		lb $t1, inverted1($t0)
 		lb $t2, inverted2($t0)
 
-		# Condición de Parada (Si $t8 o $t9 son menores que 0)
+		# Condiciï¿½n de Parada (Si $t8 o $t9 son menores que 0)
 		bgt $t0, $s6, lastDigit	
 
 		j endLastDigit
 		
-		# Si el último dígito no tiene un acarreo imprime el resultado; mientras que si tiene un acarreo todavía lo agrega como último dígito del resultado
+		# Si el ï¿½ltimo dï¿½gito no tiene un acarreo imprime el resultado; mientras que si tiene un acarreo todavï¿½a lo agrega como ï¿½ltimo dï¿½gito del resultado
 		lastDigit:
 			beqz $t8, printResult
 			
@@ -270,11 +270,11 @@ addition:
 			j printResult
 		endLastDigit:
 		
-		# Si $t1 o $t2 no es un número va a "null1" o "null2"
+		# Si $t1 o $t2 no es un nï¿½mero va a "null1" o "null2"
 		blt $t1, 48, null1
 		blt $t2, 48, null2
 
-		# Se realiza la suma de los dos dígitos de cada entero
+		# Se realiza la suma de los dos dï¿½gitos de cada entero
 		add $t3, $t1, $t2
 		blt $t3, 58, null
 		# Se resta menos 48 para dar el valor correcto de la suma en ASCII
@@ -282,12 +282,12 @@ addition:
 		
 		j null
 		
-		# Si $t1 no es un número guarda en $t4 (resultado de la suma) el valor de $t2
+		# Si $t1 no es un nï¿½mero guarda en $t4 (resultado de la suma) el valor de $t2
 		null1:
 			la $t3, ($t2)
 			j lessTen
 		
-		# Si $t2 no es un número guarda en $t4 (resultado de la suma) el valor de $t1
+		# Si $t2 no es un nï¿½mero guarda en $t4 (resultado de la suma) el valor de $t1
 		null2:
 			la $t3, ($t1)
 			j lessTen
@@ -295,9 +295,9 @@ addition:
 		
 			
 		null:
-		# Si la suma de los dos dígitos es mayor que 9 (57 en ASCII) entramos en "greaterTen"
+		# Si la suma de los dos dï¿½gitos es mayor que 9 (57 en ASCII) entramos en "greaterTen"
 		bgt $t3, 57, greaterTen
-		# Si la suma de los dos dígitos es menor que 10 (58 en ASCII) entramos en "lessTen"
+		# Si la suma de los dos dï¿½gitos es menor que 10 (58 en ASCII) entramos en "lessTen"
 		ble $t3, 57, lessTen
 		
 		greaterTen:
@@ -339,7 +339,7 @@ addition:
 				
 				j endIfNine
 				
-				# Si el dígito es 9 y lleva un acarreo
+				# Si el dï¿½gito es 9 y lleva un acarreo
 				ifNine:
 					# Convierte el 9 en un 0 (10) y 
 					li $t3, 48
@@ -384,6 +384,7 @@ sustraction:
 
 		beq $t8, 1, removeCarry # si hay carreo se le resta 1 $t1
 
+	zeroRemoveCarryContinue:
 		#Chequea que los numeros sean de igual longitud
 		blt $t1, 48, subtNull1
 		blt $t2, 48, subtNull2
@@ -391,6 +392,8 @@ sustraction:
 		bgt $t2, $t1, addCarry
 
 		j applySubt
+
+		
 
 		subtNull1:
 			la $t3, ($t2)
@@ -413,10 +416,15 @@ sustraction:
 			
 
 		removeCarry:
-			subi $t1, $t1, 1
-			li $t8, 0
-
-			j afterRemoveCarry
+			bgt $t1, 48, normalRemoveCarry 
+			zeroRemoveCarry:
+				li $t1, 57
+				j zeroRemoveCarryContinue
+		
+			normalRemoveCarry:
+				subi $t1, $t1, 1
+				li $t8, 0
+				j afterRemoveCarry
 		
 		addCarry:
 			addi $t1, $t1, 10
@@ -476,7 +484,7 @@ printResult:
 	endResultInvertion:
 	
 	
-	# Salto de línea
+	# Salto de lï¿½nea
 	li $v0, 4
 	la $a0, salto
 	syscall
@@ -489,7 +497,7 @@ printResult:
 	la $a0, result
 	syscall
 	
-	# Salto de línea
+	# Salto de lï¿½nea
 	li $v0, 4
 	la $a0, salto
 	syscall
